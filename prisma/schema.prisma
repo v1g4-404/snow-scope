@@ -22,6 +22,8 @@ model User {
   reports        Report[]   @relation("ReportToUser")
   favorites      Favorite[] @relation("FavoriteToUser")
   visits         Visit[]    @relation("VisitToUser")
+
+  @@map("users")
 }
 
 enum AreaType {
@@ -36,6 +38,7 @@ model Area {
   type      AreaType
   name      String
   createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime   @updatedAt @map("updated_at")
   skiSpots  SkiSpot[]
 
   parent   Area?  @relation("AreaToArea", fields: [parentId], references: [id])
