@@ -22,6 +22,8 @@ model User {
   reports        Report[]   @relation("ReportToUser")
   favorites      Favorite[] @relation("FavoriteToUser")
   visits         Visit[]    @relation("VisitToUser")
+
+  @@map("users")
 }
 
 enum AreaType {
@@ -45,17 +47,17 @@ model Area {
 }
 
 enum WidthType {
-  広い
-  普通
-  狭い
+  WIDE
+  NORMAL
+  NARROW
 }
 
 model SkiSpot {
   id                Int        @id @default(autoincrement())
   areaId            Int        @map("area_id")
   name              String
-  latitude          String
-  longitude         String
+  latitude          Float
+  longitude         Float
   address           String
   courseCount       Int        @map("course_count")
   maxSlope          Int        @map("max_slope")
@@ -120,22 +122,22 @@ model Level {
 }
 
 enum QualityType {
-  パウダー
-  圧雪
-  アイスバーン
-  ざらめ
+  POWDER
+  GROOMED
+  ICE
+  SLUSH
 }
 
 enum CongestionType {
-  少ない
-  普通
-  多い
+  LOW
+  NORMAL
+  HIGH
 }
 
 enum OpenStatusType {
-  全面滑走可
-  一部滑走可
-  クローズ
+  FULL
+  PARTIAL
+  CLOSED
 }
 
 model Report {
@@ -164,6 +166,7 @@ model Favorite {
   user    User    @relation("FavoriteToUser", fields: [userId], references: [id])
   skiSpot SkiSpot @relation("FavoriteToSkiSpot", fields: [skiSpotId], references: [id])
 
+  @@unique([userId, skiSpotId])
   @@map("favorites")
 }
 
