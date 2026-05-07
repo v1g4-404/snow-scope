@@ -8,6 +8,10 @@ export type CreateUserRequestBody = {
   password: string
 }
 
+export type CreateUserResponse = {
+  name: string
+}
+
 export const POST = async (request: NextRequest) => {
 
   try {
@@ -33,9 +37,8 @@ export const POST = async (request: NextRequest) => {
     })
 
 
-    return NextResponse.json({
+    return NextResponse.json<CreateUserResponse>({
       name: user.name,
-      supabaseUserId: user.supabaseUserId,
     })
 
   } catch (error) {
