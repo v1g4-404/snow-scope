@@ -6,9 +6,17 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { SignInInput } from '../_components/_types/Input'
 import { AuthHeader } from '../_components/AuthHeader'
 import Link from 'next/link'
+import { TextInput } from '../_components/TextInput'
+import { Button } from '../_components/Button'
+import { Label } from '../_components/Label'
 
 export default function Page() {
-  const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignInInput>()
+  const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignInInput>({
+    defaultValues: {
+      email: '',
+      password: '',
+    }
+  })
   const router = useRouter()
 
   const onSubmit: SubmitHandler<SignInInput> = async ({ email, password }) => {
@@ -33,13 +41,8 @@ export default function Page() {
       <div className='px-6 py-8'>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
           <div>
-            <label
-              htmlFor="email"
-              className="block mb-2 text-sm text-[#64748B]"
-            >
-              メールアドレス
-            </label>
-            <input
+            <Label htmlFor='email'>メールアドレス</Label>
+            <TextInput
               {...register('email', {
                 required: 'メールアドレスは必要です',
                 pattern: {
@@ -47,22 +50,16 @@ export default function Page() {
                   message: '正しいメールアドレスを入力してください'
                 }
               })}
-              placeholder='name@company.com'
-              className='bg-white border border-[#CBD5E1] text-gray-900 text-sm rounded-lg block w-full p-2.5'
-              disabled={isSubmitting}
-              id='email'
               type='email'
+              id='email'
+              placeholder='name@company.com'
+              disabled={isSubmitting}
             />
             {errors.email && <p className='mt-1 text-sm text-red-600'>{errors.email.message}</p>}
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block mb-2 text-sm text-[#64748B]"
-            >
-              パスワード
-            </label>
-            <input
+            <Label htmlFor='password'>パスワード</Label>
+            <TextInput
               {...register('password', {
                 required: 'パスワードは必要です',
                 minLength: {
@@ -71,27 +68,20 @@ export default function Page() {
                 }
               })}
               placeholder='••••••••'
-              className='bg-white border border-[#CBD5E1] text-gray-900 text-sm rounded-lg block w-full p-2.5'
               disabled={isSubmitting}
               id='password'
               type='password'
             />
             {errors.password && <p className='mt-1 text-sm text-red-600'>{errors.password.message}</p>}
           </div>
-            <button
-              type="submit"
-              className="w-full text-white bg-[#378ADD] hover:bg-[#1A56A0] font-medium rounded-lg text-sm px-5 py-3 mt-2"
-              disabled={isSubmitting}
-            >
-              ログイン
-            </button>
-            <p className='text-center text-xs text-[#64748B]'>
-              <Link href="/reset_password" className="text-[#378ADD]">パスワードをお忘れですか？</Link>
-            </p>
-            <p className='text-center text-xs text-[#64748B]'>
-              アカウントをお持ちでない方は
-              <Link href="/sign_up" className="text-[#378ADD]">新規登録</Link>
-            </p>
+          <Button type='submit' disabled={isSubmitting}>ログイン</Button>
+          <p className='text-center text-xs text-[#64748B]'>
+            <Link href="/reset_password" className="text-[#378ADD]">パスワードをお忘れですか？</Link>
+          </p>
+          <p className='text-center text-xs text-[#64748B]'>
+            アカウントをお持ちでない方は
+            <Link href="/sign_up" className="text-[#378ADD]">新規登録</Link>
+          </p>
         </form>
       </div>
     </div>

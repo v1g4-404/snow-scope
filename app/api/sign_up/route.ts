@@ -1,14 +1,11 @@
 import { prisma } from '@/app/_libs/prisma';
+import { supabaseAdmin } from '@/app/_libs/supabaseAdmin';
 import { NextRequest, NextResponse } from "next/server"
 
 export type CreateUserRequestBody = {
   name: string
-  supabaseUserId: string
-}
-
-export type CreateUserResponse = {
-  name: string
-  supabaseUserId: string
+  email: string
+  password: string
 }
 
 export const POST = async (request: NextRequest) => {
@@ -16,20 +13,29 @@ export const POST = async (request: NextRequest) => {
   try {
 
     const body: CreateUserRequestBody = await request.json()
+    const { name, email, password } = body
 
-    const { name, supabaseUserId } = body
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      email_confirm: true,
+      password: password,
+    })
 
-    const data = await prisma.user.create({
+    if (error) {
+      return NextResponse.json({ message: error.message }, { status: 400 })
+    }
+
+    const user = await prisma.user.create({
       data: {
-        name,
-        supabaseUserId,
+        name: name,
+        supabaseUserId: data.user.id,
       },
     })
 
 
-    return NextResponse.json<CreateUserResponse>({
-      name: data.name,
-      supabaseUserId: data.supabaseUserId
+    return NextResponse.json({
+      name: user.name,
+      supabaseUserId: user.supabaseUserId,
     })
 
   } catch (error) {
