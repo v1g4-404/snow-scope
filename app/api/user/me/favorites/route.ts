@@ -17,7 +17,7 @@ export const GET = async (request: NextRequest) => {
 
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
-  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ status: error.message }, { status: 401 })
 
   try {
 

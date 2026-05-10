@@ -48,7 +48,7 @@ export const GET = async (
 
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
-  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ status: error.message }, { status: 401 })
 
   const { id } = await params
   let isFavorite = false
