@@ -1,6 +1,6 @@
 import { prisma } from "@/app/_libs/prisma"
 import { supabase } from "@/app/_libs/supabase"
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 
 export type ReviewsShowResponse = {
   reviews: {
@@ -25,12 +25,15 @@ export type ReviewsShowResponse = {
 }
 
 
-export const GET = async () => {
+export const GET = async (request: NextRequest) => {
+  
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
 
   try {
-
-    const { data: { user } } = await supabase.auth.getUser()
-
 
     if (!user) {
       return NextResponse.json({ message: '認証が必要です' }, { status: 401 })

@@ -40,11 +40,16 @@ export type SpotShowResponse = {
 }
 
 export const GET = async (
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) => {
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const token = request.headers.get('Authorization') ?? ''
+
+  const { data: { user }, error } = await supabase.auth.getUser(token)
+
+  if (error) return NextResponse.json({ status: error.message }, { status: 400 })
+
   const { id } = await params
   let isFavorite = false
 
