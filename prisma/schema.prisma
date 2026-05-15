@@ -38,7 +38,7 @@ model Area {
   type      AreaType
   name      String
   createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime   @updatedAt @map("updated_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
   skiSpots  SkiSpot[]
 
   parent   Area?  @relation("AreaToArea", fields: [parentId], references: [id])
@@ -175,7 +175,8 @@ model Visit {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
   skiSpotId Int      @map("ski_spot_id")
-  visitedAt DateTime @default(now()) @map("visited_at")
+  visitedAt DateTime @map("visited_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   user    User    @relation("VisitToUser", fields: [userId], references: [id])
   skiSpot SkiSpot @relation("VisitToSkiSpot", fields: [skiSpotId], references: [id])

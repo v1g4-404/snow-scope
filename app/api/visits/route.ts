@@ -2,7 +2,7 @@ import { prisma } from "@/app/_libs/prisma"
 import { supabase } from "@/app/_libs/supabase"
 import { NextRequest, NextResponse } from "next/server"
 
-export type CreateFavoriteResponse = {
+export type CreateVisitResponse = {
   id: number
 }
 
@@ -26,16 +26,17 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
-    const { skiSpotId } = await request.json()
+    const { skiSpotId, visitedAt } = await request.json()
 
-    const data = await prisma.favorite.create({
+    const data = await prisma.visit.create({
       data: {
         userId: dbUser.id,
         skiSpotId: Number(skiSpotId),
+        visitedAt: visitedAt
       }
     })
 
-    return NextResponse.json<CreateFavoriteResponse>({ id: data.id }, { status: 200 })
+    return NextResponse.json<CreateVisitResponse>({ id: data.id }, { status: 200 })
 
   } catch (error) {
     if (error instanceof Error) {
