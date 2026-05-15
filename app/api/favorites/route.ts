@@ -35,7 +35,7 @@ export const POST = async (request: NextRequest) => {
       }
     })
 
-    return NextResponse.json<CreateFavoriteResponse>({ id: data.id })
+    return NextResponse.json<CreateFavoriteResponse>({ id: data.id }, { status: 200 })
 
   } catch (error) {
     if (error instanceof Error) {

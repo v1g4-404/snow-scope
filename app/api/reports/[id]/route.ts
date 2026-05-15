@@ -19,7 +19,7 @@ export const PUT = async (
 
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
-  if (error) return NextResponse.json({ message: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ message: error.message }, { status: 401 })
 
   if (!user) return NextResponse.json({ message: '認証が必要です' }, { status: 401 })
 
@@ -39,7 +39,8 @@ export const PUT = async (
 
     await prisma.report.update({
       where: {
-        id: Number(id)
+        id: Number(id),
+        userId: dbUser.id,
       },
       data: {
         snowQuality,
@@ -73,9 +74,19 @@ export const DELETE = async (
   const { id } = await params
 
   try {
+
+    const dbUser = await prisma.user.findUnique({
+      where: { supabaseUserId: user.id }
+    })
+
+    if (!dbUser) {
+      return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
+    }
+
     await prisma.report.delete({
       where: {
         id: Number(id),
+        userId: dbUser.id
       },
     })
 

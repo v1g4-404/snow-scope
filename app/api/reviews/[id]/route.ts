@@ -16,7 +16,7 @@ export const PUT = async (
 
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
-  if (error) return NextResponse.json({ message: error.message }, { status: 400 })
+  if (error) return NextResponse.json({ message: error.message }, { status: 401 })
 
   if (!user) return NextResponse.json({ message: '認証が必要です' }, { status: 401 })
 
@@ -32,35 +32,38 @@ export const PUT = async (
       return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
-    const {  rating, comment, levels }: UpdateReviewRequestBody = await request.json()
+    const { rating, comment, levels }: UpdateReviewRequestBody = await request.json()
 
-    const data = await prisma.review.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        rating,
-        comment,
-      },
-    })
 
-    await prisma.reviewLevel.deleteMany({
-      where: {
-        reviewId: data.id,
-      },
-    })
-
-    for (const level of levels) {
-      await prisma.reviewLevel.create({
+    await prisma.$transaction(async (tx) => {
+      const data = await tx.review.update({
+        where: {
+          id: Number(id),
+          userId: dbUser.id,
+        },
         data: {
-          levelId: level.id,
+          rating,
+          comment,
+        },
+      })
+
+      await tx.reviewLevel.deleteMany({
+        where: {
           reviewId: data.id,
         },
       })
-    }
+
+
+      await tx.reviewLevel.createMany({
+        data: levels.map((level) => ({
+          levelId: level.id,
+          reviewId: data.id,
+        }))
+      })
+    })
 
     return NextResponse.json({ message: 'OK' }, { status: 200 })
-    
+
   } catch (error) {
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
@@ -69,23 +72,33 @@ export const PUT = async (
 
 export const DELETE = async (
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }, 
+  { params }: { params: Promise<{ id: string }> },
 ) => {
 
   const token = request.headers.get('Authorization') ?? ''
 
   const { data: { user }, error } = await supabase.auth.getUser(token)
 
-if (error) return NextResponse.json({ message: error.message }, { status: 401 })
+  if (error) return NextResponse.json({ message: error.message }, { status: 401 })
 
-if (!user) return NextResponse.json({ message: '認証が必要です' }, { status: 401 })
+  if (!user) return NextResponse.json({ message: '認証が必要です' }, { status: 401 })
 
   const { id } = await params
 
   try {
+
+    const dbUser = await prisma.user.findUnique({
+      where: { supabaseUserId: user.id }
+    })
+
+    if (!dbUser) {
+      return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
+    }
+
     await prisma.review.delete({
       where: {
         id: Number(id),
+        userId: dbUser.id
       },
     })
 

@@ -44,18 +44,15 @@ export const POST = async (request: NextRequest) => {
       },
     })
 
-    for (const level of levels) {
-      await prisma.reviewLevel.create({
-        data: {
-          levelId: level.id,
-          reviewId: data.id,
-        },
-      })
-    }
+    await prisma.reviewLevel.createMany({
+      data: levels.map((level) => ({
+        levelId: level.id,
+        reviewId: data.id,
+      })),
+    });
 
-    return NextResponse.json<CreateReviewResponse>({
-      id: data.id,
-    })
+    return NextResponse.json<CreateReviewResponse>({ id: data.id, }, { status: 200 })
+    
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 400 })

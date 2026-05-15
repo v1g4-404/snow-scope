@@ -36,7 +36,7 @@ export const POST = async (request: NextRequest) => {
       }
     })
 
-    return NextResponse.json<CreateVisitResponse>({ id: data.id })
+    return NextResponse.json<CreateVisitResponse>({ id: data.id }, { status: 200 })
 
   } catch (error) {
     if (error instanceof Error) {

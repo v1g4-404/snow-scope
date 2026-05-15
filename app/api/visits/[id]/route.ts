@@ -29,7 +29,8 @@ export const DELETE = async (
 
     await prisma.visit.delete({
       where: {
-        id: Number(id)
+        id: Number(id),
+        userId: dbUser.id
       },
     })
 

@@ -48,9 +48,7 @@ export const POST = async (request: NextRequest) => {
       },
     })
 
-    return NextResponse.json<CreateReportResponse>({
-      id: data.id,
-    })
+    return NextResponse.json<CreateReportResponse>({ id: data.id, }, { status: 200 })
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 400 })
