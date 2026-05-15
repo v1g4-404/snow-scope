@@ -1,12 +1,11 @@
-import { prisma } from "@/app/_libs/prisma"
-import { supabase } from "@/app/_libs/supabase"
-import { NextRequest, NextResponse } from "next/server"
+import { prisma } from "@/app/_libs/prisma";
+import { supabase } from "@/app/_libs/supabase";
+import { NextRequest, NextResponse } from "next/server";
 
-export type CreateFavoriteResponse = {
-  id: number
-}
-
-export const POST = async (request: NextRequest) => {
+export const DELETE = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
 
   const token = request.headers.get('Authorization') ?? ''
 
@@ -15,6 +14,8 @@ export const POST = async (request: NextRequest) => {
   if (error) return NextResponse.json({ message: error.message }, { status: 401 })
 
   if (!user) return NextResponse.json({ message: '認証が必要です' }, { status: 401 })
+
+  const { id } = await params
 
   try {
 
@@ -26,20 +27,16 @@ export const POST = async (request: NextRequest) => {
       return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
-    const { skiSpotId } = await request.json()
-
-    const data = await prisma.favorite.create({
-      data: {
-        userId: dbUser.id,
-        skiSpotId: Number(skiSpotId),
-      }
+    await prisma.visit.delete({
+      where: {
+        id: Number(id)
+      },
     })
 
-    return NextResponse.json<CreateFavoriteResponse>({ id: data.id })
+    return NextResponse.json({ message: 'OK' }, { status: 200 })
 
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
-    }
   }
 }
