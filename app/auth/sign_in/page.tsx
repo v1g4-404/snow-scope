@@ -3,12 +3,12 @@
 import { supabase } from '@/app/_libs/supabase'
 import { useRouter } from 'next/navigation'
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { SignInInput } from '../_components/_types/Input'
-import { AuthHeader } from '../_components/AuthHeader'
+import { SignInInput } from '../../_components/_types/Input'
+import { AuthHeader } from '../../_components/AuthHeader'
 import Link from 'next/link'
-import { TextInput } from '../_components/TextInput'
-import { Button } from '../_components/Button'
-import { Label } from '../_components/Label'
+import { TextInput } from '../../_components/TextInput'
+import { Button } from '../../_components/Button'
+import { Label } from '../../_components/Label'
 
 export default function Page() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignInInput>({

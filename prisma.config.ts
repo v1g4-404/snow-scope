@@ -5,8 +5,9 @@ export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
   datasource: {
-    url: env("DIRECT_URL"), // ここを、DIRECT_URLに変更。
+    url: env("DIRECT_URL"),
   },
 });

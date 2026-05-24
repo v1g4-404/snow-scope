@@ -1,65 +1,96 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from "react"
+import { RecommendSpots } from "@/app/api/ski_spots/recommend/route"
+import { HomeCard } from "./_components/_types/HomeCard"
+import { Header } from "./_components/Header"
+import useSWR from 'swr'
+import { SpotsIndexResponse } from "./api/ski_spots/route"
+
+const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export default function Home() {
+  const [searchQuery, setSearchQuery] = useState<string>('')
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const { data } = useSWR<SpotsIndexResponse>(`/api/ski_spots?query=${searchQuery}`, fetcher)
+  const { data: beginnerData, isLoading: isBeginnerLoading } = useSWR<RecommendSpots>(`/api/ski_spots/recommend?ids=15,5,2,11`, fetcher)
+  const { data: intermediateData, isLoading: isIntermediateLoading } = useSWR<RecommendSpots>(`/api/ski_spots/recommend?ids=13,7,9,3`, fetcher)
+
+  if (isBeginnerLoading || isIntermediateLoading) return <div>読み込み中...</div>
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="min-h-screen w-full bg-[#F0F4F8] pb-20">
+      <Header />
+      <div className="bg-[#4A90D9] px-4 h-24 flex items-center">
+        <input
+          onChange={handleSearch}
+          type="text"
+          placeholder="エリア、雪質、斜度で検索…"
+          className="w-full bg-white border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#1E1E1E] placeholder:text-[#1E1E1E]"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
+      <div className="px-4 py-4">
+        {searchQuery ? (
+          <div>
+            <h2 className="text-base font-medium text-[#1E293B] mb-3">検索結果</h2>
+            <div className="flex flex-col gap-3">
+              {data?.spots.map((spot: SpotsIndexResponse['spots'][number]) => (
+                <HomeCard
+                  key={spot.id}
+                  id={spot.id}
+                  skiAreaName={spot.name}
+                  prefecture={spot.area.parent?.name}
+                  region={spot.area.name}
+                  rating={0}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-base font-medium text-[#1E293B] mb-3">初心者おすすめ</h2>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {beginnerData?.recommendSpots.map((spot) => (
+                  <HomeCard
+                    key={spot.id}
+                    id={spot.id}
+                    skiAreaName={spot.name}
+                    prefecture={spot.area.parent?.name}
+                    region={spot.area.name}
+                    rating={spot.reviews.length > 0
+                      ? Math.round(spot.reviews.reduce((sum, review) => sum + review.rating, 0) / spot.reviews.length)
+                      : 0
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <h2 className="text-base font-medium text-[#1E293B] mb-3">中級者おすすめ</h2>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {intermediateData?.recommendSpots.map((spot) => (
+                  <HomeCard
+                    key={spot.id}
+                    id={spot.id}
+                    skiAreaName={spot.name}
+                    prefecture={spot.area.parent?.name}
+                    region={spot.area.name}
+                    rating={spot.reviews.length > 0
+                      ? Math.round(spot.reviews.reduce((sum, review) => sum + review.rating, 0) / spot.reviews.length)
+                      : 0
+                    }
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  );
+  )
 }

@@ -34,6 +34,9 @@ export type SpotsIndexResponse = {
       name: string
       createdAt: Date
       updatedAt: Date
+      parent: {
+        name: string
+      } | null
     }
   }[]
 }
@@ -41,16 +44,20 @@ export type SpotsIndexResponse = {
 export const GET = async (request: NextRequest) => {
   const searchParams = request.nextUrl.searchParams
   const query = searchParams.get('query')
+  const areaType = searchParams.get('areaType')
 
   try {
     const spots = await prisma.skiSpot.findMany({
-      where: query ? {
-        area: {
-      type: query as AreaType
-    }
-      } : undefined,
+      where: {
+        ...(query ? { name: { contains: query, mode: 'insensitive' } } : {}),
+        ...(areaType ? { area: { type: areaType as AreaType } } : {}),
+      },
       include: {
-        area: true,
+        area: {
+          include: {
+            parent: true
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc',
