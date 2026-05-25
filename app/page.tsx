@@ -2,12 +2,10 @@
 
 import { useState } from "react"
 import { RecommendSpots } from "@/app/api/ski_spots/recommend/route"
-import { HomeCard } from "./_components/_types/HomeCard"
+import { HomeCard } from "./_components/HomeCard"
 import { Header } from "./_components/Header"
-import useSWR from 'swr'
 import { SpotsIndexResponse } from "./api/ski_spots/route"
-
-const fetcher = (url: string) => fetch(url).then(res => res.json())
+import { useFetch } from "./_hooks/useFetch"
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -16,11 +14,11 @@ export default function Home() {
     setSearchQuery(e.target.value)
   }
 
-  const { data } = useSWR<SpotsIndexResponse>(`/api/ski_spots?query=${searchQuery}`, fetcher)
-  const { data: beginnerData, isLoading: isBeginnerLoading } = useSWR<RecommendSpots>(`/api/ski_spots/recommend?ids=15,5,2,11`, fetcher)
-  const { data: intermediateData, isLoading: isIntermediateLoading } = useSWR<RecommendSpots>(`/api/ski_spots/recommend?ids=13,7,9,3`, fetcher)
+  const { data } = useFetch<SpotsIndexResponse>(`/api/ski_spots?query=${searchQuery}`)
+  const { data: beginnerData } = useFetch<RecommendSpots>(`/api/ski_spots/recommend?ids=15,5,2,11`)
+  const { data: intermediateData } = useFetch<RecommendSpots>(`/api/ski_spots/recommend?ids=13,7,9,3`)
 
-  if (isBeginnerLoading || isIntermediateLoading) return <div>読み込み中...</div>
+  if (!beginnerData || !intermediateData) return <div>読み込み中...</div>
 
   return (
     <div className="min-h-screen w-full bg-[#F0F4F8] pb-20">
@@ -55,7 +53,7 @@ export default function Home() {
             <div className="mb-6">
               <h2 className="text-base font-medium text-[#1E293B] mb-3">初心者おすすめ</h2>
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {beginnerData?.recommendSpots.map((spot) => (
+                {beginnerData.recommendSpots.map((spot) => (
                   <HomeCard
                     key={spot.id}
                     id={spot.id}
@@ -73,7 +71,7 @@ export default function Home() {
             <div>
               <h2 className="text-base font-medium text-[#1E293B] mb-3">中級者おすすめ</h2>
               <div className="flex gap-3 overflow-x-auto pb-2">
-                {intermediateData?.recommendSpots.map((spot) => (
+                {intermediateData.recommendSpots.map((spot) => (
                   <HomeCard
                     key={spot.id}
                     id={spot.id}

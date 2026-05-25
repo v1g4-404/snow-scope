@@ -4,7 +4,7 @@ import { Star } from 'lucide-react'
 type Props = {
   id: number
   skiAreaName: string,
-  prefecture: string | undefined,
+  prefecture?: string,
   region: string,
   rating: number,
 }

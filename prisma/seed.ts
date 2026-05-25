@@ -29,9 +29,15 @@ async function main() {
 ]
 
 for (const area of areaParents) {
-  await prisma.area.update({
+  await prisma.area.upsert({
     where: { id: area.id },
-    data: { parentId: area.parentId }
+    update: { parentId: area.parentId },
+    create: { 
+      id: area.id, 
+      parentId: area.parentId, 
+      type: 'AREA', 
+      name: '' 
+    },
   })
 }
 }
