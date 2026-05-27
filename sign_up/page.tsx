@@ -1,12 +1,12 @@
 'use client'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { SignUpInput } from '../_components/_types/Input'
-import { AuthHeader } from '../_components/AuthHeader'
+import { SignUpInput } from '../app/_components/_types/Input'
+import { AuthHeader } from '../app/_components/AuthHeader'
 import Link from 'next/link'
-import { Label } from '../_components/Label'
-import { TextInput } from '../_components/TextInput'
-import { Button } from '../_components/Button'
+import { Label } from '../app/_components/Label'
+import { TextInput } from '../app/_components/TextInput'
+import { Button } from '../app/_components/Button'
 
 export default function Page() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignUpInput>({
