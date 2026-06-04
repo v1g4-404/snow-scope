@@ -96,3 +96,94 @@ export const DELETE = async (
       return NextResponse.json({ message: error.message }, { status: 400 })
   }
 }
+
+export type RealTimeReportResponse = {
+  snowQuality: QualityType | null,
+  congestion: CongestionType | null,
+  snowDepth: number | null,
+  openStatus: OpenStatusType | null,
+}
+
+export const GET = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) => {
+
+  const { id } = await params
+
+  try {
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    const todayEnd = new Date()
+    todayEnd.setHours(23, 59, 59, 999)
+
+    const snowDepth = await prisma.report.aggregate({
+      _avg: {
+        snowDepth: true,
+      },
+      where: {
+        skiSpotId: Number(id),
+        createdAt: { gte: todayStart, lte: todayEnd }
+      },
+    })
+
+    const snowQuality = await prisma.report.groupBy({
+      by: ["snowQuality"],
+      _count: {
+        snowQuality: true,
+      },
+      orderBy: {
+        _count: {
+          snowQuality: 'desc',
+        },
+      },
+      where: {
+        skiSpotId: Number(id),
+        createdAt: { gte: todayStart, lte: todayEnd }
+      },
+      take: 1,
+    })
+
+    const congestion = await prisma.report.groupBy({
+      by: ["congestion"],
+      _count: {
+        congestion: true,
+      },
+      orderBy: {
+        _count: {
+          congestion: 'desc',
+        },
+      },
+      where: {
+        skiSpotId: Number(id),
+        createdAt: { gte: todayStart, lte: todayEnd }
+      },
+      take: 1,
+    })
+
+    const openStatus = await prisma.report.groupBy({
+      by: ["openStatus"],
+      _count: {
+        openStatus: true,
+      },
+      orderBy: {
+        _count: {
+          openStatus: 'desc',
+        },
+      },
+      where: {
+        skiSpotId: Number(id),
+        createdAt: { gte: todayStart, lte: todayEnd }
+      },
+      take: 1,
+    })
+
+    return NextResponse.json<RealTimeReportResponse>(
+      { snowQuality: snowQuality[0]?.snowQuality, congestion: congestion[0]?.congestion, snowDepth: snowDepth._avg.snowDepth, openStatus: openStatus[0]?.openStatus },
+      { status: 200 }
+    )
+  } catch (error) {
+    if (error instanceof Error)
+      return NextResponse.json({ message: error.message }, { status: 400 })
+  }
+}
