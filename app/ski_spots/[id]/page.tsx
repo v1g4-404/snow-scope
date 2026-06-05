@@ -11,8 +11,8 @@ import { VisitsBySpotResponse } from "@/app/api/visits/[id]/route";
 import { RealTimeReportResponse } from "@/app/api/reports/[id]/route";
 import { DonutChart } from "@/app/_components/DonutChart";
 import { ReviewShowResponse } from "@/app/api/ski_spots/[id]/reviews/route";
-import { LiveInfo } from "@/app/_components/LiveInfo";
-import { CourseInfo } from "@/app/_components/CourseInfo";
+import { LiveInfo } from "@/app/ski_spots/[id]/_components/LiveInfo";
+import { CourseInfo } from "@/app/ski_spots/[id]/_components/CourseInfo";
 import { BaseInfo } from "@/app/_components/BaseInfo";
 
 export default function Page() {
