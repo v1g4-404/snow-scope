@@ -8,7 +8,7 @@ import { AuthHeader } from '../_components/AuthHeader'
 import Link from 'next/link'
 import { TextInput } from '../_components/TextInput'
 import { Button } from '../_components/Button'
-import { Label } from '../_components/Label'
+import { Label } from '../ski_spots/[id]/_components/Label'
 
 export default function Page() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignInInput>({

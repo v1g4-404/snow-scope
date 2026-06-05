@@ -2,7 +2,7 @@ import { useSupabaseSession } from "./useSupabaseSession"
 import useSWR from "swr"
 
 export const useFetch = <T>(endpoint: string) => {
-  const { token } = useSupabaseSession()
+  const { token, isLoading } = useSupabaseSession()
 
   const fetcher = async (url: string) => {
     const headers: HeadersInit = {
@@ -15,5 +15,5 @@ export const useFetch = <T>(endpoint: string) => {
     return res.json()
   }
 
-  return useSWR<T>(endpoint, fetcher)
+  return useSWR<T>(isLoading ? null : endpoint, fetcher)
 }

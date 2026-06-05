@@ -34,6 +34,9 @@ export type SpotShowResponse = {
       name: string
       createdAt: Date
       updatedAt: Date
+      parent: {
+        name: string
+      } | null
     }
     isFavorite: boolean
   }
@@ -46,9 +49,7 @@ export const GET = async (
 
   const token = request.headers.get('Authorization') ?? ''
 
-  const { data: { user }, error } = await supabase.auth.getUser(token)
-
-  if (error) return NextResponse.json({ message: error.message }, { status: 401 })
+  const { data: { user } } = await supabase.auth.getUser(token)
 
   const { id } = await params
   let isFavorite = false
@@ -81,7 +82,11 @@ export const GET = async (
         id: Number(id),
       },
       include: {
-        area: true,
+        area: {
+          include: {
+            parent: true
+          }
+        }
       },
     })
 

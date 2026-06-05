@@ -20,6 +20,9 @@ export type ReviewShowResponse = {
         createdAt: Date
       }
     }[]
+    user: {
+      name: string
+    }
   }[]
 }
 
@@ -36,6 +39,11 @@ export const GET = async (
         skiSpotId: Number(id),
       },
       include: {
+        user: {
+          select: {
+            name: true
+          }
+        },
         level: {
           include: {
             level: true,

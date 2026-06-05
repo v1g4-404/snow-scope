@@ -15,9 +15,9 @@ export const Header = ({ title, showBack }: Props) => {
   return (
     <div className="bg-white h-14 px-5 flex items-center border-b border-gray-200">
       {showBack ? (
-        <button onClick={() => router.back()} className="flex items-center gap-2">
+        <button onClick={() => router.back()} className="flex items-center gap-2 text-[#378ADD]">
           <ChevronLeft/>
-          <span>{title}</span>
+          <span className="font-bold">{title}</span>
         </button>
       ) : (
         <Link href="/" className="text-xl font-bold">
