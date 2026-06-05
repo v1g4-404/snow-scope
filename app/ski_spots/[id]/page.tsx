@@ -11,17 +11,21 @@ import { VisitsBySpotResponse } from "@/app/api/visits/[id]/route";
 import { RealTimeReportResponse } from "@/app/api/reports/[id]/route";
 import { DonutChart } from "@/app/_components/DonutChart";
 import { ReviewShowResponse } from "@/app/api/ski_spots/[id]/reviews/route";
+import { LiveInfo } from "@/app/_components/LiveInfo";
+import { CourseInfo } from "@/app/_components/CourseInfo";
+import { BaseInfo } from "@/app/_components/BaseInfo";
 
 export default function Page() {
   const { id } = useParams()
   const { data, mutate } = useFetch<SpotShowResponse>(`/api/ski_spots/${id}`)
   const { token } = useSupabaseSession()
-  const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [visitedAt, setVisitedAt] = useState<string>('')
   const { data: visitData, mutate: mutatevisitData } = useFetch<VisitsBySpotResponse>(`/api/visits/${id}`)
   const { data: realTimeData } = useFetch<RealTimeReportResponse>(`/api/reports/${id}`)
   const { data: reviewData } = useFetch<ReviewShowResponse>(`/api/ski_spots/${id}/reviews`)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const router = useRouter()
 
   const qualityLabel = {
     POWDER: 'パウダー',
@@ -50,7 +54,7 @@ export default function Page() {
 
   const onFavorite = async () => {
     if (!token) {
-      router.push('/sign_in')
+      setIsLoginModalOpen(true)
       return
     }
 
@@ -59,7 +63,7 @@ export default function Page() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: token ?? ''
+          Authorization: token
         },
         body: JSON.stringify({ skiSpotId: id })
       })
@@ -68,7 +72,7 @@ export default function Page() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: token ?? ''
+          Authorization: token
         },
       })
     }
@@ -77,7 +81,7 @@ export default function Page() {
 
   const onVisit = async (date: string) => {
     if (!token) {
-      router.push('/sign_in')
+      setIsLoginModalOpen(true)
       return
     }
     if (!date) return
@@ -86,7 +90,7 @@ export default function Page() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token ?? ''
+        Authorization: token
       },
       body: JSON.stringify({ skiSpotId: id, visitedAt: new Date(date) })
     })
@@ -105,6 +109,22 @@ export default function Page() {
         <h2 className="text-xl font-medium">{data.spot.name}</h2>
         <div className="text-[13px]">{data.spot.area.parent?.name} / {data.spot.area.name}</div>
         <div className="absolute bottom-3 right-4 flex gap-2">
+          {isLoginModalOpen && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
+                <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
+                <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
+                    キャンセル
+                  </button>
+                  <button onClick={() => router.push('/sign_in')} className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">
+                    ログインへ
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           {isModalOpen && (
             <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
@@ -149,51 +169,27 @@ export default function Page() {
         <h2 className="text-sm font-medium text-[#1E293B] mb-3">
           <span className="text-green-500">・</span> リアルタイム情報
         </h2>
-        {!realTimeData || realTimeData.snowQuality === null || realTimeData.congestion === null || realTimeData.openStatus === null ? (
-          <div className="flex flex-col items-center justify-center py-6 gap-1">
-            <p className="text-sm text-[#94A3B8]">本日の情報はまだありません</p>
-            <p className="text-xs text-[#CBD5E1]">ゲレンデからのレポートをお待ちください</p>
+        {!realTimeData || realTimeData.snowQuality === null || realTimeData.congestion === null || realTimeData.openStatus === null || realTimeData.snowDepth === null ? (
+          <div className="flex flex-col items-center justify-center py-6 gap-1 text-[#94A3B8]">
+            <p className="text-sm">本日の情報はまだありません</p>
+            <p className="text-xs">ゲレンデからのレポートをお待ちください</p>
           </div>
         ) : (
           <div className="grid grid-cols-4 gap-2 text-center">
-            <div>
-              <p className="text-xs text-[#64748B]">雪質</p>
-              <p className="text-sm font-medium text-[#1E293B]">{qualityLabel[realTimeData.snowQuality]}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[#64748B]">積雪</p>
-              <p className="text-sm font-medium text-[#1E293B]">{realTimeData.snowDepth}cm</p>
-            </div>
-            <div>
-              <p className="text-xs text-[#64748B]">混雑</p>
-              <p className="text-sm font-medium text-[#1E293B]">{congestionLabel[realTimeData.congestion]}</p>
-            </div>
-            <div>
-              <p className="text-xs text-[#64748B]">コース</p>
-              <p className="text-sm font-medium text-[#1E293B]">{openStatusLabel[realTimeData.openStatus]}</p>
-            </div>
+            <LiveInfo label="雪質" value={qualityLabel[realTimeData.snowQuality]} />
+            <LiveInfo label="積雪" value={`${realTimeData.snowDepth}cm`} />
+            <LiveInfo label="混雑" value={congestionLabel[realTimeData.congestion]} />
+            <LiveInfo label="コース" value={openStatusLabel[realTimeData.openStatus]} />
           </div>
         )}
       </div>
       <div className="mx-4 mt-4 rounded-xl bg-[#E2E8F0] p-4">
         <h2 className="text-sm font-medium text-[#1E293B] mb-3">コース情報</h2>
         <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-[#64748B]">コース数</p>
-            <p className="text-lg font-medium text-[#1E293B]">{data.spot.courseCount}コース</p>
-          </div>
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-[#64748B]">最長滑走距離</p>
-            <p className="text-lg font-medium text-[#1E293B]">{data.spot.maxDistance}m</p>
-          </div>
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-[#64748B]">最大斜度</p>
-            <p className="text-lg font-medium text-[#1E293B]">{data.spot.maxSlope}°</p>
-          </div>
-          <div className="bg-white rounded-xl p-3">
-            <p className="text-xs text-[#64748B]">コース幅</p>
-            <p className="text-lg font-medium text-[#1E293B]">{courseWidth[data.spot.courseWidth]}</p>
-          </div>
+          <CourseInfo label="コース数" value={`${data.spot.courseCount}コース`} />
+          <CourseInfo label="最長滑走距離" value={`${data.spot.maxDistance}m`} />
+          <CourseInfo label="最大斜度" value={`${data.spot.maxSlope}°`} />
+          <CourseInfo label="コース幅" value={courseWidth[data.spot.courseWidth]} />
         </div>
         <DonutChart
           beginnerRatio={data.spot.beginnerRatio}
@@ -206,26 +202,11 @@ export default function Page() {
       <div className="mx-4 mt-4 rounded-xl bg-[#E2E8F0] p-4">
         <h2 className="text-sm font-medium text-[#1E293B] mb-3">基本情報</h2>
         <div className="flex flex-col gap-2">
-          <div className="flex justify-between">
-            <p className="text-xs text-[#64748B]">場所</p>
-            <p className="text-xs text-[#1E293B]">{data.spot.address}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-xs text-[#64748B]">営業時間</p>
-            <p className="text-xs text-[#1E293B]">{data.spot.openTime}〜{data.spot.closeTime}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-xs text-[#64748B]">リフト料金</p>
-            <p className="text-xs text-[#1E293B]">¥{data.spot.liftPrice.toLocaleString()}/日</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-xs text-[#64748B]">駐車場</p>
-            <p className="text-xs text-[#1E293B]">¥{data.spot.parkingPrice.toLocaleString()}/日</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="text-xs text-[#64748B]">スクール</p>
-            <p className="text-xs text-[#1E293B]">{data.spot.hasSchool ? 'あり（要予約）' : 'なし'}</p>
-          </div>
+          <BaseInfo label="場所" value={data.spot.address} />
+          <BaseInfo label="営業時間" value={`${data.spot.openTime}〜${data.spot.closeTime}`} />
+          <BaseInfo label="リフト料金" value={`¥${data.spot.liftPrice.toLocaleString()}/日`} />
+          <BaseInfo label="駐車場料金" value={`¥${data.spot.parkingPrice.toLocaleString()}/日`} />
+          <BaseInfo label="スクール" value={data.spot.hasSchool ? 'あり（要予約）' : 'なし'} />
         </div>
       </div>
       <div className="mx-4 mt-4 rounded-xl bg-[#E2E8F0] p-4">

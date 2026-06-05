@@ -117,66 +117,69 @@ export const GET = async (
     const todayEnd = new Date()
     todayEnd.setHours(23, 59, 59, 999)
 
-    const snowDepth = await prisma.report.aggregate({
-      _avg: {
-        snowDepth: true,
-      },
-      where: {
-        skiSpotId: Number(id),
-        createdAt: { gte: todayStart, lte: todayEnd }
-      },
-    })
+    const [snowDepth, snowQuality, congestion, openStatus] = await Promise.all([
 
-    const snowQuality = await prisma.report.groupBy({
-      by: ["snowQuality"],
-      _count: {
-        snowQuality: true,
-      },
-      orderBy: {
-        _count: {
-          snowQuality: 'desc',
+      prisma.report.aggregate({
+        _avg: {
+          snowDepth: true,
         },
-      },
-      where: {
-        skiSpotId: Number(id),
-        createdAt: { gte: todayStart, lte: todayEnd }
-      },
-      take: 1,
-    })
+        where: {
+          skiSpotId: Number(id),
+          createdAt: { gte: todayStart, lte: todayEnd }
+        },
+      }),
 
-    const congestion = await prisma.report.groupBy({
-      by: ["congestion"],
-      _count: {
-        congestion: true,
-      },
-      orderBy: {
+      prisma.report.groupBy({
+        by: ["snowQuality"],
         _count: {
-          congestion: 'desc',
+          snowQuality: true,
         },
-      },
-      where: {
-        skiSpotId: Number(id),
-        createdAt: { gte: todayStart, lte: todayEnd }
-      },
-      take: 1,
-    })
+        orderBy: {
+          _count: {
+            snowQuality: 'desc',
+          },
+        },
+        where: {
+          skiSpotId: Number(id),
+          createdAt: { gte: todayStart, lte: todayEnd }
+        },
+        take: 1,
+      }),
 
-    const openStatus = await prisma.report.groupBy({
-      by: ["openStatus"],
-      _count: {
-        openStatus: true,
-      },
-      orderBy: {
+      prisma.report.groupBy({
+        by: ["congestion"],
         _count: {
-          openStatus: 'desc',
+          congestion: true,
         },
-      },
-      where: {
-        skiSpotId: Number(id),
-        createdAt: { gte: todayStart, lte: todayEnd }
-      },
-      take: 1,
-    })
+        orderBy: {
+          _count: {
+            congestion: 'desc',
+          },
+        },
+        where: {
+          skiSpotId: Number(id),
+          createdAt: { gte: todayStart, lte: todayEnd }
+        },
+        take: 1,
+      }),
+
+      prisma.report.groupBy({
+        by: ["openStatus"],
+        _count: {
+          openStatus: true,
+        },
+        orderBy: {
+          _count: {
+            openStatus: 'desc',
+          },
+        },
+        where: {
+          skiSpotId: Number(id),
+          createdAt: { gte: todayStart, lte: todayEnd }
+        },
+        take: 1,
+      }),
+    ])
 
     return NextResponse.json<RealTimeReportResponse>(
       { snowQuality: snowQuality[0]?.snowQuality, congestion: congestion[0]?.congestion, snowDepth: snowDepth._avg.snowDepth, openStatus: openStatus[0]?.openStatus },
