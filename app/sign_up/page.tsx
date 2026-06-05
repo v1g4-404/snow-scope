@@ -4,7 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { SignUpInput } from '../_components/_types/Input'
 import { AuthHeader } from '../_components/AuthHeader'
 import Link from 'next/link'
-import { Label } from '../_components/Label'
+import { Label } from '../ski_spots/[id]/_components/Label'
 import { TextInput } from '../_components/TextInput'
 import { Button } from '../_components/Button'
 
