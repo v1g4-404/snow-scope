@@ -14,6 +14,7 @@ import { ReviewShowResponse } from "@/app/api/ski_spots/[id]/reviews/route";
 import { LiveInfo } from "@/app/ski_spots/[id]/_components/LiveInfo";
 import { CourseInfo } from "@/app/ski_spots/[id]/_components/CourseInfo";
 import { BaseInfo } from "@/app/_components/BaseInfo";
+import { UsersShowResponse } from "@/app/api/user/me/route";
 
 export default function Page() {
   const { id } = useParams()
@@ -26,6 +27,7 @@ export default function Page() {
   const { data: reviewData } = useFetch<ReviewShowResponse>(`/api/ski_spots/${id}/reviews`)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const router = useRouter()
+  const { data: userData } = useFetch<UsersShowResponse>('/api/user/me')
 
   const qualityLabel = {
     POWDER: 'パウダー',
@@ -242,10 +244,26 @@ export default function Page() {
                   ))}
                 </div>
                 <p className="text-xs text-[#64748B]">{review.comment}</p>
+                {review.userId === userData?.user.id && (
+                  <button
+                    onClick={() => router.push(`/ski_spots/${id}/reviews/${review.id}`)}
+                    className="self-end text-xs text-[#378ADD] border border-[#378ADD] rounded-full px-3 py-1"
+                  >
+                    編集
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
+      </div>
+      <div className="mx-4 my-4">
+        <button
+          onClick={() => router.push(`/ski_spots/${id}/reviews/new`)}
+          className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium"
+        >
+          口コミ投稿
+        </button>
       </div>
     </div>
   )

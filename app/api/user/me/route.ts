@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from "next/server"
 
 export type UsersShowResponse = {
   user: {
+    id: number
     name: string
     visitCount: number
     postCount: number
@@ -51,6 +52,7 @@ export const GET = async (request: NextRequest) => {
 
     return NextResponse.json<UsersShowResponse>({
       user: {
+        id: dbUser.id,
         name: dbUser.name,
         visitCount: dbUser._count.visits,
         postCount,
