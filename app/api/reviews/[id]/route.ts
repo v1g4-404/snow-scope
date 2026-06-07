@@ -95,11 +95,16 @@ export const DELETE = async (
       return NextResponse.json({ message: 'ユーザーが見つかりません' }, { status: 404 })
     }
 
-    await prisma.review.delete({
-      where: {
-        id: Number(id),
-        userId: dbUser.id
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.reviewLevel.deleteMany({
+        where: { reviewId: Number(id) }
+      })
+      await tx.review.delete({
+        where: {
+          id: Number(id),
+          userId: dbUser.id
+        }
+      })
     })
 
     return NextResponse.json({ message: 'OK' }, { status: 200 })
