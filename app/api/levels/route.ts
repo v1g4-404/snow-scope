@@ -12,7 +12,7 @@ export const GET = async () => {
   try {
     const levels = await prisma.level.findMany()
 
-    return NextResponse.json({ levels }, { status: 200 })
+    return NextResponse.json<LevelShowResponse>({ levels }, { status: 200 })
   } catch (error) {
     if (error instanceof Error) {
       return NextResponse.json({ message: error.message }, { status: 400 })

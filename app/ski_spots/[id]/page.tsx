@@ -2,7 +2,7 @@
 
 import { useFetch } from "@/app/_hooks/useFetch";
 import { SpotShowResponse } from "@/app/api/ski_spots/[id]/route";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Header } from "@/app/_components/Header";
 import { BookmarkIcon, Star, StarIcon } from "lucide-react";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
@@ -15,6 +15,7 @@ import { LiveInfo } from "@/app/ski_spots/[id]/_components/LiveInfo";
 import { CourseInfo } from "@/app/ski_spots/[id]/_components/CourseInfo";
 import { BaseInfo } from "@/app/_components/BaseInfo";
 import { UsersShowResponse } from "@/app/api/user/me/route";
+import Link from 'next/link';
 
 export default function Page() {
   const { id } = useParams()
@@ -26,7 +27,6 @@ export default function Page() {
   const { data: realTimeData } = useFetch<RealTimeReportResponse>(`/api/reports/${id}`)
   const { data: reviewData } = useFetch<ReviewShowResponse>(`/api/ski_spots/${id}/reviews`)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const router = useRouter()
   const { data: userData } = useFetch<UsersShowResponse>('/api/user/me')
 
   const qualityLabel = {
@@ -120,9 +120,7 @@ export default function Page() {
                   <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
                     キャンセル
                   </button>
-                  <button onClick={() => router.push('/sign_in')} className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">
-                    ログインへ
-                  </button>
+                  <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
                 </div>
               </div>
             </div>
@@ -245,12 +243,7 @@ export default function Page() {
                 </div>
                 <p className="text-xs text-[#64748B]">{review.comment}</p>
                 {review.userId === userData?.user.id && (
-                  <button
-                    onClick={() => router.push(`/ski_spots/${id}/reviews/${review.id}`)}
-                    className="self-end text-xs text-[#378ADD] border border-[#378ADD] rounded-full px-3 py-1"
-                  >
-                    編集
-                  </button>
+                  <Link href={`/ski_spots/${id}/reviews/${review.id}`} className="self-end text-xs text-[#378ADD] border border-[#378ADD] rounded-full px-3 py-1">編集</Link>
                 )}
               </div>
             ))}
@@ -258,12 +251,7 @@ export default function Page() {
         )}
       </div>
       <div className="mx-4 my-4">
-        <button
-          onClick={() => router.push(`/ski_spots/${id}/reviews/new`)}
-          className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium"
-        >
-          口コミ投稿
-        </button>
+        <Link href={`/ski_spots/${id}/reviews/new`} className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium">口コミ投稿</Link>
       </div>
     </div>
   )

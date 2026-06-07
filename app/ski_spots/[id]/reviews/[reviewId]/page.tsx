@@ -15,14 +15,6 @@ export default function Page() {
 
   const { data } = useFetch<ReviewByIdResponse>(`/api/user/me/reviews/${reviewId}`)
 
-  const defaultValues: ReviewFormValues | undefined = data?.review
-    ? {
-      levels: data.review.level.map((l) => ({ id: l.levelId })),
-      rating: data.review.rating,
-      comment: data.review.comment,
-    }
-    : undefined
-
   const onSubmit: SubmitHandler<ReviewFormValues> = async ({ levels, rating, comment }) => {
 
     try {
@@ -66,6 +58,14 @@ export default function Page() {
   }
 
   if (!data) return <div>読み込み中...</div>
+
+  const defaultValues: ReviewFormValues | undefined = data.review
+    ? {
+      levels: data.review.level.map((l) => ({ id: l.levelId })),
+      rating: data.review.rating,
+      comment: data.review.comment,
+    }
+    : undefined
 
   return (
     <>
