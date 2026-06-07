@@ -58,14 +58,13 @@ export default function Page() {
   }
 
   if (!data) return <div>読み込み中...</div>
+  if (!data.review) return <div>口コミが見つかりません</div>
 
-  const defaultValues: ReviewFormValues | undefined = data.review
-    ? {
-      levels: data.review.level.map((l) => ({ id: l.levelId })),
-      rating: data.review.rating,
-      comment: data.review.comment,
-    }
-    : undefined
+  const defaultValues: ReviewFormValues = {
+    levels: data.review.level.map((l) => ({ id: l.levelId })),
+    rating: data.review.rating,
+    comment: data.review.comment,
+  }
 
   return (
     <>
