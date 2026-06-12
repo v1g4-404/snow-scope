@@ -34,7 +34,7 @@ export default function Home() {
         {searchQuery ? (
           <div>
             <h2 className="text-base font-medium text-[#1E293B] mb-3">検索結果</h2>
-            <div className="flex flex-col gap-3">
+            <div className="flex overflow-x-auto pb-2 gap-3">
               {data?.spots.map((spot: SpotsIndexResponse['spots'][number]) => (
                 <HomeCard
                   key={spot.id}
