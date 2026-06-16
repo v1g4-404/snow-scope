@@ -65,7 +65,7 @@ export default function Page() {
         {data?.spots.map((spot) => (
           <Link
             key={spot.id}
-            href={`/ski_spots/${spot.id}`}
+            href={`/weather/${spot.id}`}
             className="bg-[#F1F5F9] rounded-xl p-4 flex justify-between items-start"
           >
             <div>
