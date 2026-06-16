@@ -1,7 +1,7 @@
 import { useSupabaseSession } from "./useSupabaseSession"
 import useSWR from "swr"
 
-export const useFetch = <T>(endpoint: string) => {
+export const useFetch = <T>(endpoint: string | null) => {
   const { token, isLoading } = useSupabaseSession()
 
   const fetcher = async (url: string) => {
