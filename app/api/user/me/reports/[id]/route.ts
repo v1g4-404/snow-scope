@@ -1,9 +1,9 @@
 import { prisma } from "@/app/_libs/prisma"
 import { CongestionType, OpenStatusType, QualityType } from "@/app/generated/prisma/enums"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 
-export type ReportShowResponse = {
-  reports: {
+export type ReportByIdResponse = {
+  report: {
     id: number
     userId: number
     skiSpotId: number
@@ -13,10 +13,10 @@ export type ReportShowResponse = {
     openStatus: OpenStatusType
     createdAt: Date
     updatedAt: Date
-    user:{
-      name: string,
-    },
-  }[]
+    user: {
+      name: string
+    }
+  } | null
 }
 
 export const GET = async (
@@ -27,26 +27,23 @@ export const GET = async (
   const { id } = await params
 
   try {
-    const reports = await prisma.report.findMany({
-  where: {
-    skiSpotId: Number(id)
-  },
-  include: {
-    user: {
-      select: { name: true }
-    }
-  },
-  orderBy: {
-    createdAt: 'desc'
-  },
-})
+    const report = await prisma.report.findUnique({
+      where: {
+        id: Number(id),
+      },
+      include: {
+        user: {
+          select: {
+            name: true
+          }
+        },
+      },
+    })
 
-    return NextResponse.json<ReportShowResponse>({ reports }, { status: 200 })
+    return NextResponse.json<ReportByIdResponse>({ report }, { status: 200 })
 
   } catch (error) {
-
     if (error instanceof Error)
       return NextResponse.json({ message: error.message }, { status: 400 })
   }
-
 }
