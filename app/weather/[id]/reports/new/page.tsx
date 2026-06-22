@@ -2,6 +2,7 @@
 
 import { Header } from "@/app/_components/Header";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { CreateReportRequestBody } from "@/app/api/reports/route";
 import { ReportForm, ReportFormValues } from "@/app/weather/_components/ReportForm";
 import { useParams, useRouter } from "next/navigation";
 import { SubmitHandler } from "react-hook-form";
@@ -14,16 +15,14 @@ export default function Page() {
   const onSubmit: SubmitHandler<ReportFormValues> = async ({ snowQuality, congestion, snowDepth, openStatus }) => {
 
     try {
-      const res = await fetch('/api/reports', {
+      await fetch('/api/reports', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token!,
         },
-        body: JSON.stringify({ skiSpotId: Number(id), snowQuality, congestion, snowDepth, openStatus })
+        body: JSON.stringify({ skiSpotId: Number(id), snowQuality, congestion, snowDepth, openStatus } as CreateReportRequestBody)
       })
-      const data = await res.json()
-      console.log(data)
       alert('作成しました')
       router.push(`/weather/${id}`)
     } catch (err) {

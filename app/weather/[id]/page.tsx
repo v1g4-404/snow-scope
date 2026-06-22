@@ -13,7 +13,7 @@ import { UsersShowResponse } from "@/app/api/user/me/route";
 
 export default function Page() {
   const { id } = useParams()
-  const { data } = useFetch<WeatherShowResponse>(`/api/weather/${id}`)
+  const { data, error } = useFetch<WeatherShowResponse>(`/api/weather/${id}`)
   const { data: reportData } = useFetch<ReportShowResponse>(`/api/ski_spots/${id}/reports`)
   const { data: userData } = useFetch<UsersShowResponse>('/api/user/me')
   const qualityLabel = {
@@ -34,7 +34,8 @@ export default function Page() {
     PARTIAL: '一部滑走可',
     CLOSED: 'クローズ',
   }
-  if (!data) return (<div>データが見つかりませんでした</div>)
+  if (error) return <div>エラーが発生しました</div>
+  if (!data) return <div>読み込み中...</div>
   const currentInfoItems = [
     { label: '気温', value: `${data.current.temperatureMin}/${data.current.temperatureMax}°C` },
     { label: '天気', value: weatherLabel[data.current.weatherCode] },

@@ -3,6 +3,7 @@
 import { Header } from "@/app/_components/Header";
 import { useFetch } from "@/app/_hooks/useFetch";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { CreateReportRequestBody } from "@/app/api/reports/route";
 import { ReportByIdResponse } from "@/app/api/user/me/reports/[id]/route";
 import { ReportForm, ReportFormValues } from "@/app/weather/_components/ReportForm";
 import { useParams, useRouter } from "next/navigation";
@@ -13,21 +14,19 @@ export default function Page() {
   const { token } = useSupabaseSession()
   const { id, reportId } = useParams()
 
-  const { data } = useFetch<ReportByIdResponse>(`/api/user/me/reports/${reportId}`)
+  const { data, error } = useFetch<ReportByIdResponse>(`/api/user/me/reports/${reportId}`)
 
   const onSubmit: SubmitHandler<ReportFormValues> = async ({ snowQuality, congestion, snowDepth, openStatus }) => {
 
     try {
-      const res = await fetch(`/api/reports/${reportId}`, {
+      await fetch(`/api/reports/${reportId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token!,
         },
-        body: JSON.stringify({ skiSpotId: Number(id), snowQuality, congestion, snowDepth, openStatus })
+        body: JSON.stringify({ skiSpotId: Number(id), snowQuality, congestion, snowDepth, openStatus } as CreateReportRequestBody)
       })
-      const data = await res.json()
-      console.log(data)
       alert('作成しました')
       router.push(`/weather/${id}`)
     } catch (err) {
@@ -57,6 +56,7 @@ export default function Page() {
     }
   }
 
+  if (error) return <div>エラーが発生しました</div>
   if (!data) return <div>読み込み中...</div>
   if (!data.report) return <div>投稿が見つかりません</div>
 
