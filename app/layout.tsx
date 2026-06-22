@@ -29,7 +29,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-  <div className="max-w-[390px] mx-auto w-full min-h-screen relative">
+  <div className="max-w-97.5 mx-auto w-full min-h-screen relative">
     {children}
   </div>
   <BottomNav/>

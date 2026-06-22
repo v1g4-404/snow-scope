@@ -11,7 +11,7 @@ type Props = {
 
 export const HomeCard = ({ id, skiAreaName, prefecture, region, rating }: Props) => {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm w-40 flex-shrink-0">
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm w-40 shrink-0">
       <Link href={`/ski_spots/${id}`}>
         <div className="bg-[#BFDBFE] h-32 w-full" />
         <div className="p-3">

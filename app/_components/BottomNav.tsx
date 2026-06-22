@@ -18,7 +18,7 @@ export const BottomNav = () => {
   if (pathname === '/sign_in' || pathname === '/sign_up') return null
 
   return (
-    <div className="fixed bottom-0 h-[83px] left-1/2 -translate-x-1/2 w-full max-w-[390px] flex justify-around bg-white border-t border-gray-200 py-2">
+    <div className="fixed bottom-0 h-20.75 left-1/2 -translate-x-1/2 w-full max-w-97.5 flex justify-around bg-white border-t border-gray-200 py-2">
       {tabs.map((tab) => {
         const isActive = tab.href === '/'
           ? pathname === '/'
