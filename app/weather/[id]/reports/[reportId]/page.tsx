@@ -17,15 +17,24 @@ export default function Page() {
   const { data, error } = useFetch<ReportByIdResponse>(`/api/user/me/reports/${reportId}`)
 
   const onSubmit: SubmitHandler<ReportFormValues> = async ({ snowQuality, congestion, snowDepth, openStatus }) => {
-
     try {
+
+      const body: CreateReportRequestBody = {
+        skiSpotId: Number(id),
+        snowQuality,
+        congestion,
+        snowDepth,
+        openStatus
+      }
+
       await fetch(`/api/reports/${reportId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token!,
         },
-        body: JSON.stringify({ skiSpotId: Number(id), snowQuality, congestion, snowDepth, openStatus } as CreateReportRequestBody)
+
+        body: JSON.stringify(body)
       })
       alert('作成しました')
       router.push(`/weather/${id}`)
