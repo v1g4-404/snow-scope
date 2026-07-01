@@ -2,7 +2,7 @@
 
 import { useFetch } from "@/app/_hooks/useFetch";
 import { WeatherShowResponse } from "@/app/api/weather/[id]/route";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { weatherLabel } from "@/app/_libs/weatherLabel";
 import { Header } from "@/app/_components/Header";
 import { WeatherInfoCard } from "../_components/WeatherInfoCard";
@@ -10,12 +10,18 @@ import { DailyWeatherCard } from "../_components/DailyWeatherCard";
 import { ReportShowResponse } from "@/app/api/ski_spots/[id]/reports/route";
 import Link from 'next/link';
 import { UsersShowResponse } from "@/app/api/user/me/route";
+import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { useState } from "react";
+import { ModalButton } from "@/app/_components/ModalButton";
 
 export default function Page() {
   const { id } = useParams()
+  const router = useRouter()
+  const { session } = useSupabaseSession()
   const { data, error } = useFetch<WeatherShowResponse>(`/api/weather/${id}`)
   const { data: reportData } = useFetch<ReportShowResponse>(`/api/ski_spots/${id}/reports`)
-  const { data: userData } = useFetch<UsersShowResponse>('/api/user/me')
+  const { data: userData } = useFetch<UsersShowResponse>(session ? '/api/user/me' : null)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
   const qualityLabel = {
     POWDER: 'パウダー',
     GROOMED: '圧雪',
@@ -50,6 +56,18 @@ export default function Page() {
         <h2 className="text-xl font-medium">{data.spot.name}</h2>
         <div className="text-[13px]">{data.spot.address}</div>
       </div>
+      {isLoginModalOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
+            <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
+            <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
+            <div className="flex gap-2">
+              <ModalButton onClick={() => setIsLoginModalOpen(false)} variant="cancel" label="キャンセル" />
+              <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mx-4 mt-4 rounded-xl bg-[#E2E8F0] p-4">
         <h2 className="text-sm font-medium text-[#1E293B] mb-3">今日の天気</h2>
         <div className="grid grid-cols-2 gap-2">
@@ -126,8 +144,16 @@ export default function Page() {
         )}
       </div>
       <div className="mx-4 my-4">
-        <Link href={`/weather/${id}/reports/new`} className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium">現在の天候を投稿</Link>
+        <button
+          onClick={() => {
+            if (!session) {
+              setIsLoginModalOpen(true)
+              return
+            }
+            router.push(`/weather/${id}/reports/new`)
+          }}
+          className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium">現在の天候を投稿</button>
       </div>
-    </div>
+    </div >
   )
 }

@@ -8,6 +8,11 @@ export type FavoriteShowResponse = {
     userId: number
     skiSpotId: number
     createdAt: Date
+    skiSpot: {
+      id: number,
+      name: string,
+      address: string
+    }
   }[]
 }
 
@@ -36,15 +41,28 @@ export const GET = async (request: NextRequest) => {
     }
 
     const favorites = await prisma.favorite.findMany({
-      where: {
-        userId: dbUser.id
-      },
-    })
-
-    return NextResponse.json<FavoriteShowResponse>({ favorites }, { status: 200 })
-
-  } catch (error) {
-    if (error instanceof Error)
-      return NextResponse.json({ message: error.message }, { status: 400 })
+  where: {
+    userId: dbUser.id
+  },
+  select: {
+    id: true,
+    userId: true,
+    skiSpotId: true,
+    createdAt: true,
+    skiSpot: {
+      select: {
+        id: true,
+        name: true,
+        address: true,
+      }
+    }
   }
+})
+
+  return NextResponse.json<FavoriteShowResponse>({ favorites }, { status: 200 })
+
+} catch (error) {
+  if (error instanceof Error)
+    return NextResponse.json({ message: error.message }, { status: 400 })
+}
 }

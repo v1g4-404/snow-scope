@@ -2,7 +2,7 @@
 
 import { useFetch } from "@/app/_hooks/useFetch";
 import { SpotShowResponse } from "@/app/api/ski_spots/[id]/route";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/app/_components/Header";
 import { BookmarkIcon, Star, StarIcon } from "lucide-react";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
@@ -16,18 +16,20 @@ import { CourseInfo } from "@/app/ski_spots/[id]/_components/CourseInfo";
 import { BaseInfo } from "@/app/_components/BaseInfo";
 import { UsersShowResponse } from "@/app/api/user/me/route";
 import Link from 'next/link';
+import { ModalButton } from "@/app/_components/ModalButton";
 
 export default function Page() {
   const { id } = useParams()
+  const router = useRouter()
+  const { token, session } = useSupabaseSession()
   const { data, mutate } = useFetch<SpotShowResponse>(`/api/ski_spots/${id}`)
-  const { token } = useSupabaseSession()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [visitedAt, setVisitedAt] = useState<string>('')
-  const { data: visitData, mutate: mutatevisitData } = useFetch<VisitsBySpotResponse>(`/api/visits/${id}`)
+  const { data: visitData, mutate: mutatevisitData } = useFetch<VisitsBySpotResponse>(session ? `/api/visits/${id}` : null)
   const { data: realTimeData } = useFetch<RealTimeReportResponse>(`/api/reports/${id}`)
   const { data: reviewData } = useFetch<ReviewShowResponse>(`/api/ski_spots/${id}/reviews`)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
-  const { data: userData } = useFetch<UsersShowResponse>('/api/user/me')
+  const { data: userData } = useFetch<UsersShowResponse>(session ? '/api/user/me' : null)
 
   const qualityLabel = {
     POWDER: 'パウダー',
@@ -110,47 +112,48 @@ export default function Page() {
       <div className="bg-[#B5D4F4] px-4 py-3 flex flex-col justify-end pb-3 text-[#1A56A0] relative pr-24">
         <h2 className="text-xl font-medium">{data.spot.name}</h2>
         <div className="text-[13px]">{data.spot.area.parent?.name} / {data.spot.area.name}</div>
+        {isLoginModalOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
+              <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
+              <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
+              <div className="flex gap-2">
+                <ModalButton onClick={() => setIsLoginModalOpen(false)} variant="cancel" label="キャンセル" />
+                <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
+              </div>
+            </div>
+          </div>
+        )}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
+              <h3 className="font-medium text-[#1E293B] mb-4">訪問日を選択</h3>
+              <input
+                type="date"
+                value={visitedAt}
+                onChange={(e) => setVisitedAt(e.target.value)}
+                className="w-full border border-[#CBD5E1] rounded-lg p-3 mb-4"
+              />
+              <div className="flex gap-2">
+                <ModalButton onClick={() => setIsModalOpen(false)} variant="cancel" label="キャンセル" />
+                <ModalButton onClick={() => { onVisit(visitedAt); setIsModalOpen(false) }} variant='confirm' label='登録' />
+              </div>
+            </div>
+          </div>
+        )}
         <div className="absolute bottom-3 right-4 flex gap-2">
-          {isLoginModalOpen && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
-                <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
-                <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
-                <div className="flex gap-2">
-                  <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
-                    キャンセル
-                  </button>
-                  <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
-                </div>
-              </div>
-            </div>
-          )}
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
-                <h3 className="font-medium text-[#1E293B] mb-4">訪問日を選択</h3>
-                <input
-                  type="date"
-                  value={visitedAt}
-                  onChange={(e) => setVisitedAt(e.target.value)}
-                  className="w-full border border-[#CBD5E1] rounded-lg p-3 mb-4"
-                />
-                <div className="flex gap-2">
-                  <button onClick={() => setIsModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3">
-                    キャンセル
-                  </button>
-                  <button onClick={() => { onVisit(visitedAt); setIsModalOpen(false) }} className="flex-1 bg-[#378ADD] text-white rounded-lg p-3">
-                    登録
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
           <div className="flex flex-col items-center">
             {visitData?.visitCount !== null && (
               <span className="text-sm font-medium text-[#1A56A0]">{visitData?.visitCount}</span>
             )}
-            <button onClick={() => setIsModalOpen(true)} className="bg-white rounded-full p-2">
+            <button onClick={() => {
+              if (!token) {
+                setIsLoginModalOpen(true)
+                return
+              }
+              setIsModalOpen(true)
+            }}
+              className="bg-white rounded-full p-2">
               <BookmarkIcon size={20} />
             </button>
           </div>
@@ -251,7 +254,15 @@ export default function Page() {
         )}
       </div>
       <div className="mx-4 my-4">
-        <Link href={`/ski_spots/${id}/reviews/new`} className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium">口コミ投稿</Link>
+        <button
+          onClick={() => {
+            if (!session) {
+              setIsLoginModalOpen(true)
+              return
+            }
+            router.push(`/ski_spots/${id}/reviews/new`)
+          }}
+          className="w-full bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium">口コミ投稿</button>
       </div>
     </div>
   )
