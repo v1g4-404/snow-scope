@@ -16,6 +16,7 @@ import { CourseInfo } from "@/app/ski_spots/[id]/_components/CourseInfo";
 import { BaseInfo } from "@/app/_components/BaseInfo";
 import { UsersShowResponse } from "@/app/api/user/me/route";
 import Link from 'next/link';
+import { ModalButton } from "@/app/_components/ModalButton";
 
 export default function Page() {
   const { id } = useParams()
@@ -117,9 +118,7 @@ export default function Page() {
               <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
               <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
               <div className="flex gap-2">
-                <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
-                  キャンセル
-                </button>
+                <ModalButton onClick={() => setIsLoginModalOpen(false)} variant="cancel" label="キャンセル" />
                 <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
               </div>
             </div>
@@ -136,12 +135,8 @@ export default function Page() {
                 className="w-full border border-[#CBD5E1] rounded-lg p-3 mb-4"
               />
               <div className="flex gap-2">
-                <button onClick={() => setIsModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3">
-                  キャンセル
-                </button>
-                <button onClick={() => { onVisit(visitedAt); setIsModalOpen(false) }} className="flex-1 bg-[#378ADD] text-white rounded-lg p-3">
-                  登録
-                </button>
+                <ModalButton onClick={() => setIsModalOpen(false)} variant="cancel" label="キャンセル" />
+                <ModalButton onClick={() => { onVisit(visitedAt); setIsModalOpen(false) }} variant='confirm' label='登録' />
               </div>
             </div>
           </div>

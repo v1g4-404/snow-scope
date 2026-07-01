@@ -10,12 +10,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronRight, Mail, Lock, User } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { StatCard } from "../_components/StatCard";
+import { ModalButton } from "@/app/_components/ModalButton";
 
 export default function Page() {
 
   const router = useRouter()
   const { session, token } = useSupabaseSession()
-  const { data, mutate } = useFetch<UsersShowResponse>(session ? '/api/user/me' : null)
+  const { data, mutate, error } = useFetch<UsersShowResponse>(session ? '/api/user/me' : null)
   const [modaleOpen, setModalOpen] = useState(false)
   const [nameModalOpen, setNameModalOpen] = useState(false)
   const { register, handleSubmit } = useForm<UpdateUserRequestBody>({
@@ -28,7 +30,8 @@ export default function Page() {
     }
   }, [session, router])
 
-  if (session === null) return null
+  if (!session) return null
+  if (error) return <div>エラーが発生しました</div>
   if (!data) return <div>読み込み中...</div>
 
   const onSubmit = async ({ name }: UpdateUserRequestBody) => {
@@ -70,19 +73,8 @@ export default function Page() {
                 placeholder="ユーザー名を入力"
               />
               <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setNameModalOpen(false)}
-                  className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]"
-                >
-                  キャンセル
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm font-medium"
-                >
-                  変更
-                </button>
+                <ModalButton onClick={() => setNameModalOpen(false)} variant="cancel" label="キャンセル" />
+                <ModalButton variant="confirm" label="変更" type="submit" />
               </div>
             </form>
           </div>
@@ -92,27 +84,16 @@ export default function Page() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
             <p className="text-sm font-medium text-[#1E293B] mb-2">メールアドレス</p>
-            <p className="text-sm text-[#64748B] mb-6">{session?.user.email}</p>
-            <button onClick={() => setModalOpen(false)} className="w-full border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
-              閉じる
-            </button>
+            <p className="text-sm text-[#64748B] mb-6">{session.user.email}</p>
+            <ModalButton onClick={() => setModalOpen(false)} variant="cancel" label="閉じる" />
           </div>
         </div>
       )}
       <div className="px-5 pt-6 flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-[#E2E8F0] rounded-xl py-5 px-3 text-center">
-            <p className="text-xs text-[#64748B] mb-2">口コミ投稿</p>
-            <p className="text-3xl font-medium text-[#1E293B]">{data.user.postCount}</p>
-          </div>
-          <div className="bg-[#E2E8F0] rounded-xl py-5 px-3 text-center">
-            <p className="text-xs text-[#64748B] mb-2">お気に入り</p>
-            <p className="text-3xl font-medium text-[#1E293B]">{data.user.favoriteCount}</p>
-          </div>
-          <div className="bg-[#E2E8F0] rounded-xl py-5 px-3 text-center">
-            <p className="text-xs text-[#64748B] mb-2">訪問回数</p>
-            <p className="text-3xl font-medium text-[#1E293B]">{data.user.visitCount}</p>
-          </div>
+          <StatCard label="口コミ投稿" value={data.user.postCount} />
+          <StatCard label="お気に入り" value={data.user.favoriteCount} />
+          <StatCard label="訪問回数" value={data.user.visitCount} />
         </div>
 
         <div className="border border-[#CBD5E1] rounded-xl overflow-hidden">
