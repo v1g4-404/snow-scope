@@ -7,21 +7,28 @@ import { supabase } from "@/app/_libs/supabase";
 import { UpdateUserRequestBody, UsersShowResponse } from "@/app/api/user/me/route";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronRight, Mail, Lock, User } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 export default function Page() {
 
   const router = useRouter()
-  const { data, mutate } = useFetch<UsersShowResponse>('/api/user/me')
   const { session, token } = useSupabaseSession()
+  const { data, mutate } = useFetch<UsersShowResponse>(session ? '/api/user/me' : null)
   const [modaleOpen, setModalOpen] = useState(false)
   const [nameModalOpen, setNameModalOpen] = useState(false)
   const { register, handleSubmit } = useForm<UpdateUserRequestBody>({
-    defaultValues: { name: data?.user.name }
+    defaultValues: { name: data?.user?.name ?? '' }
   })
 
+  useEffect(() => {
+    if (session === null) {
+      router.push('/sign_in')
+    }
+  }, [session, router])
+
+  if (session === null) return null
   if (!data) return <div>読み込み中...</div>
 
   const onSubmit = async ({ name }: UpdateUserRequestBody) => {

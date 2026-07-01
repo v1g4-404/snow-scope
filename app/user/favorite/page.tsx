@@ -5,14 +5,24 @@ import { useFetch } from "@/app/_hooks/useFetch";
 import { FavoriteShowResponse } from "@/app/api/user/me/favorites/route";
 import Link from 'next/link'
 import { Star } from "lucide-react"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const { data, mutate } = useFetch<FavoriteShowResponse>('/api/user/me/favorites')
+  const { token, session } = useSupabaseSession()
+  const { data, mutate } = useFetch<FavoriteShowResponse>(session ? '/api/user/me/favorites' : null)
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
-  const { token } = useSupabaseSession()
+  const router = useRouter()
 
+
+  useEffect(() => {
+    if (session === null) {
+      router.push('/sign_in')
+    }
+  }, [session, router])
+
+  if (session === null) return null
   if (!data) return <div>読み込み中...</div>
 
   const onFavorite = async () => {
