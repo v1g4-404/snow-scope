@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { UsersShowResponse } from "@/app/api/user/me/route";
 import { useSupabaseSession } from "@/app/_hooks/useSupabaseSession";
 import { useState } from "react";
+import { ModalButton } from "@/app/_components/ModalButton";
 
 export default function Page() {
   const { id } = useParams()
@@ -56,19 +57,17 @@ export default function Page() {
         <div className="text-[13px]">{data.spot.address}</div>
       </div>
       {isLoginModalOpen && (
-            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
-                <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
-                <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
-                <div className="flex gap-2">
-                  <button onClick={() => setIsLoginModalOpen(false)} className="flex-1 border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#64748B]">
-                    キャンセル
-                  </button>
-                  <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
-                </div>
-              </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 mx-4 w-full max-w-xs">
+            <h3 className="font-medium text-[#1E293B] mb-2">ログインが必要です</h3>
+            <p className="text-xs text-[#64748B] mb-6">この操作にはログインが必要です</p>
+            <div className="flex gap-2">
+              <ModalButton onClick={() => setIsLoginModalOpen(false)} variant="cancel" label="キャンセル" />
+              <Link href='/sign_in' className="flex-1 bg-[#378ADD] text-white rounded-lg p-3 text-sm">ログインへ</Link>
             </div>
-          )}
+          </div>
+        </div>
+      )}
       <div className="mx-4 mt-4 rounded-xl bg-[#E2E8F0] p-4">
         <h2 className="text-sm font-medium text-[#1E293B] mb-3">今日の天気</h2>
         <div className="grid grid-cols-2 gap-2">
