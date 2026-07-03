@@ -76,7 +76,7 @@ export default function Page() {
           </div>
           <Button type='submit' disabled={isSubmitting}>ログイン</Button>
           <p className='text-center text-xs text-[#64748B]'>
-            <Link href="/reset_password" className="text-[#378ADD]">パスワードをお忘れですか？</Link>
+            <Link href="/forget_password" className="text-[#378ADD]">パスワードをお忘れですか？</Link>
           </p>
           <p className='text-center text-xs text-[#64748B]'>
             アカウントをお持ちでない方は

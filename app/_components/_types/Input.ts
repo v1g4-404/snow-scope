@@ -1,4 +1,4 @@
-// _types/Input.ts
+
 export type SignUpInput = {
   name: string
   email: string
@@ -8,4 +8,13 @@ export type SignUpInput = {
 export type SignInInput = {
   email: string
   password: string
+}
+
+export type ForgetPassword = {
+  email: string
+}
+
+export type ResetPassword = {
+  password: string
+  confirmPassword: string
 }

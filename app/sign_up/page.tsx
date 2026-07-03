@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Label } from '../ski_spots/[id]/_components/Label'
 import { TextInput } from '../_components/TextInput'
 import { Button } from '../_components/Button'
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
   const { register, handleSubmit, formState: { isSubmitting, errors } } = useForm<SignUpInput>({
@@ -16,6 +17,8 @@ export default function Page() {
       password: '',
     }
   })
+
+  const router = useRouter()
 
 
   const onSubmit: SubmitHandler<SignUpInput> = async ({ name, email, password }) => {
@@ -32,6 +35,7 @@ export default function Page() {
         return
       }
       alert('登録が完了しました。')
+      router.replace('/sign_in')
     } catch (err) {
       alert('登録に失敗しました')
       console.log(err)
