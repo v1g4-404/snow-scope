@@ -18,7 +18,7 @@ export default function Page() {
 
   const onSubmit: SubmitHandler<ForgetPassword> = async ({ email }) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:3000/reset_password'
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset_password`
     })
     if (error) {
       alert('パスワードが存在しません')
