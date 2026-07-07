@@ -8,9 +8,10 @@ import { Star } from "lucide-react"
 import Link from 'next/link'
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
+import { Suspense } from 'react'
 
 
-export default function Page() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const areaId = searchParams.get('areaId')
   const { data, mutate } = useFetch<SpotsIndexResponse>(`/api/ski_spots?areaId=${areaId}`)
@@ -85,5 +86,13 @@ export default function Page() {
         ))}
       </div>
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense>
+      <SearchContent />
+    </Suspense>
   )
 }
