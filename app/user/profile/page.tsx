@@ -123,7 +123,7 @@ export default function Page() {
           </button>
           <div className="h-px bg-[#CBD5E1]" />
           <Link
-            href="/reset_password"
+            href="/forget_password"
             className="w-full px-5 py-5 flex items-center justify-between bg-white"
           >
             <div className="flex items-center gap-4">
