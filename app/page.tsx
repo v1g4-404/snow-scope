@@ -26,7 +26,7 @@ export default function Home() {
         <input
           onChange={handleSearch}
           type="text"
-          placeholder="エリア、雪質、斜度で検索…"
+          placeholder="ゲレンデ名で検索…"
           className="w-full bg-white border border-[#CBD5E1] rounded-lg p-3 text-sm text-[#1E1E1E] placeholder:text-[#1E1E1E]"
         />
       </div>
