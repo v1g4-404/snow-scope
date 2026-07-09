@@ -34,18 +34,22 @@ export default function Home() {
         {searchQuery ? (
           <div>
             <h2 className="text-base font-medium text-[#1E293B] mb-3">検索結果</h2>
-            <div className="flex overflow-x-auto pb-2 gap-3">
-              {data?.spots.map((spot: SpotsIndexResponse['spots'][number]) => (
-                <HomeCard
-                  key={spot.id}
-                  id={spot.id}
-                  skiAreaName={spot.name}
-                  prefecture={spot.area.parent?.name}
-                  region={spot.area.name}
-                  rating={0}
-                />
-              ))}
-            </div>
+            {data?.spots.length === 0 ? (
+              <p className="text-sm text-[#94A3B8]">該当するゲレンデが見つかりませんでした</p>
+            ) : (
+              <div className="flex overflow-x-auto pb-2 gap-3">
+                {data?.spots.map((spot: SpotsIndexResponse['spots'][number]) => (
+                  <HomeCard
+                    key={spot.id}
+                    id={spot.id}
+                    skiAreaName={spot.name}
+                    prefecture={spot.area.parent?.name}
+                    region={spot.area.name}
+                    rating={0}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div>

@@ -63,27 +63,33 @@ function SearchContent() {
             </div>
           </div>
         )}
-        {data?.spots.map((spot) => (
-          <Link
-            key={spot.id}
-            href={`/ski_spots/${spot.id}`}
-            className="bg-[#F1F5F9] rounded-xl p-4 flex justify-between items-start"
-          >
-            <div>
-              <h3 className="text-lg font-medium text-[#1E293B]">{spot.name}</h3>
-              <p className="text-sm text-[#94A3B8]">
-                {spot.area.parent?.name} / {spot.area.name}
-              </p>
-            </div>
-            <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onFavorite(spot) }}>
-              <Star
-                size={20}
-                fill={spot.isFavorite ? '#FBBF24' : 'none'}
-                color={spot.isFavorite ? '#FBBF24' : '#94A3B8'}
-              />
-            </button>
-          </Link>
-        ))}
+        {data?.spots.length === 0 ? (
+          <p className="text-sm text-[#94A3B8]">該当するゲレンデが見つかりませんでした</p>
+        ) : (
+          <div className="flex flex-col gap-4">
+            {data?.spots.map((spot) => (
+              <Link
+                key={spot.id}
+                href={`/ski_spots/${spot.id}`}
+                className="bg-[#F1F5F9] rounded-xl p-4 flex justify-between items-start"
+              >
+                <div>
+                  <h3 className="text-lg font-medium text-[#1E293B]">{spot.name}</h3>
+                  <p className="text-sm text-[#94A3B8]">
+                    {spot.area.parent?.name} / {spot.area.name}
+                  </p>
+                </div>
+                <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onFavorite(spot) }}>
+                  <Star
+                    size={20}
+                    fill={spot.isFavorite ? '#FBBF24' : 'none'}
+                    color={spot.isFavorite ? '#FBBF24' : '#94A3B8'}
+                  />
+                </button>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
