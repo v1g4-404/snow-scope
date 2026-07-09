@@ -8,6 +8,7 @@ import { TextInput } from "../_components/TextInput"
 import { Button } from '../_components/Button'
 import { Label } from '../ski_spots/[id]/_components/Label'
 import { supabase } from "../_libs/supabase"
+import { useEffect } from "react"
 
 export default function Page() {
   const { register, handleSubmit, getValues, formState: { isSubmitting, errors } } = useForm<ResetPassword>({
@@ -17,6 +18,15 @@ export default function Page() {
     }
   })
   const router = useRouter()
+
+  useEffect(() => {
+  const { token_hash, type } = Object.fromEntries(
+    new URLSearchParams(window.location.search)
+  )
+  if (token_hash && type === 'recovery') {
+    supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
+  }
+}, [])
 
   const onSubmit: SubmitHandler<ResetPassword> = async ({ password }) => {
     const { error } = await supabase.auth.updateUser({ password })
